@@ -1,0 +1,6 @@
+build/
+*.a
+*.o
+include/louvre
+external/
+lib/
