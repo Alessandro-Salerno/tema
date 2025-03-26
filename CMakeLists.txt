@@ -15,8 +15,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 include_directories("include")
-add_executable(${PROJECT_NAME} ${SOURCES})
-add_subdirectory(tests)
 
 set(LOUVRE louvre_project)
 ExternalProject_Add(
@@ -33,3 +31,7 @@ ExternalProject_Add(
 add_library(louvre STATIC IMPORTED)
 set_property(TARGET louvre PROPERTY IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/lib/liblouvre.a)
 add_dependencies(louvre louvre_project)
+
+add_executable(${PROJECT_NAME} ${SOURCES})
+target_link_libraries(${PROJECT_NAME} louvre)
+add_subdirectory(tests)

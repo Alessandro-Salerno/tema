@@ -26,19 +26,18 @@ class Emitter {
     const std::size_t mMaxLineWidth;
     const std::size_t mBorderWidth;
     const std::size_t mIndentWidth;
-    Formatter        &mFormatter;
 
     public:
     Emitter(std::size_t max_line_width,
             std::size_t border_width,
             std::size_t indent_width)
         : mMaxLineWidth(max_line_width), mBorderWidth(border_width),
-          mIndentWidth(indent_width),
-          mFormatter(LeftFormatter::get_instance()) {};
+          mIndentWidth(indent_width) {};
 
     std::wstring emit(std::shared_ptr<louvre::Node> root);
     std::wstring emit_recurisve(std::shared_ptr<louvre::Node> root,
-                                std::size_t                   avail_width);
+                                std::size_t                   avail_width,
+                                Formatter &formatter);
 
     inline std::size_t max_line_width() const {
         return this->mMaxLineWidth;

@@ -21,10 +21,44 @@
 #include <tema/util.hpp>
 
 namespace tema {
-class Formatter {
+class Indenter {
     public:
+    virtual std::wstring indent(const std::wstring text,
+                                std::size_t        indent_width) = 0;
+};
+
+class NullIndenter : public Singleton<NullIndenter>, public Indenter {
+    friend class Singleton<NullIndenter>;
+
+    public:
+    std::wstring indent(const std::wstring text,
+                        std::size_t        indent_width) override {
+        return text;
+    }
+};
+
+class LeftIndenter : public Singleton<LeftIndenter>, public Indenter {
+    friend class Singleton<LeftIndenter>;
+
+    public:
+    std::wstring indent(const std::wstring text,
+                        std::size_t        indent_width) override;
+};
+
+class Formatter {
+    private:
+    Indenter &mIndenter;
+
+    public:
+    Formatter(Indenter &indenter = NullIndenter::get_instance())
+        : mIndenter(indenter) {};
+
     virtual std::wstring format(const std::wstring text,
                                 std::size_t        max_line_width) = 0;
+
+    std::wstring indent(const std::wstring text, std::size_t indent_width) {
+        return this->mIndenter.indent(text, indent_width);
+    }
 };
 
 class LeftFormatter : public Singleton<LeftFormatter>, public Formatter {
@@ -35,7 +69,9 @@ class LeftFormatter : public Singleton<LeftFormatter>, public Formatter {
                         std::size_t        max_line_width) override;
 };
 
-class CenterFormatter : public Singleton<LeftFormatter>, public Formatter {
+class CenterFormatter : public Singleton<LeftFormatter>,
+                        public Formatter,
+                        public NullIndenter {
     friend class Singleton<CenterFormatter>;
 
     std::wstring format(const std::wstring text,

@@ -19,6 +19,12 @@
 #include <tema/split.hpp>
 
 namespace tema {
+std::wstring LeftIndenter::indent(const std::wstring text,
+                                  std::size_t        indent_width) {
+    // TODO: actually indent things
+    return text;
+}
+
 std::wstring LeftFormatter::format(const std::wstring text,
                                    std::size_t        max_line_width) {
     auto         splitter = Splitter(text);
@@ -34,7 +40,7 @@ std::wstring LeftFormatter::format(const std::wstring text,
         std::wstring word = *word_opt;
         std::size_t  rem  = max_line_width - start_pos - word.length();
 
-        // TODO: Handle case in which word is longer than ine
+        // TODO: Handle case in which word is longer than line
 
         if (start_pos + word.length() > max_line_width) {
             buf.append(L"\r\n");

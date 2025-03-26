@@ -19,22 +19,53 @@
 
 namespace tema {
 std::wstring Emitter::emit(std::shared_ptr<louvre::Node> root) {
-    return this->emit_recurisve(
-        root, this->max_line_width() - this->border_width() * 2);
+    return LeftIndenter::get_instance().indent(
+        this->emit_recurisve(root,
+                             this->max_line_width() - this->border_width() * 2,
+                             LeftFormatter::get_instance()),
+        this->border_width());
 }
 
 std::wstring Emitter::emit_recurisve(std::shared_ptr<louvre::Node> root,
-                                     std::size_t avail_width) {
+                                     std::size_t                   avail_width,
+                                     Formatter                    &formatter) {
+    std::size_t indent = 0;
+
     switch (std::get<louvre::StandardNodeType>(root->type())) {
     case louvre::StandardNodeType::Left:
-        this->mFormatter = LeftFormatter::get_instance();
+        break;
+
+    case louvre::StandardNodeType::Center:
+        break;
+
+    case louvre::StandardNodeType::Right:
+        break;
+
+    case louvre::StandardNodeType::Justify:
+        break;
+
+    case louvre::StandardNodeType::LineBreak:
+        return L"\r\n";
+
+    case louvre::StandardNodeType::Text:
+        return formatter.format(*root->text(), avail_width);
+
+    case louvre::StandardNodeType::Paragraph:
+        indent = this->indent_width();
         break;
 
     default:
         break;
     }
 
-    // TODO: implement this
-    return nullptr;
+    std::wstring buf;
+    for (auto &child : root->children()) {
+        buf.append(formatter.indent(
+            this->emit_recurisve(child, avail_width - indent, formatter),
+            indent));
+        buf.append(L"\r\n"); // TODO: no new line on last child
+    }
+
+    return buf;
 }
 } // namespace tema
