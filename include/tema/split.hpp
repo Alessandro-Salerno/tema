@@ -30,11 +30,13 @@ class Splitter {
 
     std::pair<std::size_t, std::optional<std::wstring>> next_word();
     void                                                reset_line();
+    bool                                                words_left();
 
     private:
     bool    can_advance() const;
     void    advance();
     wchar_t peek() const;
     wchar_t consume();
+    void    skip_whitespace();
 };
 } // namespace tema

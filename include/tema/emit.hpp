@@ -15,12 +15,29 @@
 
 #pragma once
 
-#include <cstddef>
 #include <cwchar>
 #include <louvre/api.hpp>
+#include <string>
 #include <tema/format.hpp>
+#include <tema/util.hpp>
 
 namespace tema {
+class EmitterSettings : public Singleton<EmitterSettings> {
+    friend class Singleton<EmitterSettings>;
+
+    private:
+    std::wstring mEol = L"\r\n";
+
+    public:
+    inline void set_eol(std::wstring eol) {
+        this->mEol = eol;
+    }
+
+    inline const std::wstring eol() const {
+        return this->mEol;
+    }
+};
+
 class Emitter {
     private:
     const std::size_t mMaxLineWidth;
@@ -37,7 +54,7 @@ class Emitter {
     std::wstring emit(std::shared_ptr<louvre::Node> root);
     std::wstring emit_recurisve(std::shared_ptr<louvre::Node> root,
                                 std::size_t                   avail_width,
-                                Formatter &formatter);
+                                Formatter                    &formatter);
 
     inline std::size_t max_line_width() const {
         return this->mMaxLineWidth;

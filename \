@@ -62,24 +62,12 @@ std::wstring Emitter::emit_recurisve(std::shared_ptr<louvre::Node> root,
     }
 
     std::wstring buf;
-    for (std::size_t i = 0; i < root->children().size(); i++) {
-        auto child = root->children().at(i);
-        // This is to avoid double new lines
-        if (louvre::StandardNodeType::LineBreak ==
-            std::get<louvre::StandardNodeType>(child->type())) {
-            buf.append(
-                this->emit_recurisve(child, avail_width, *children_formatter));
-            continue;
-        }
-
+    for (auto &child : root->children()) {
         buf.append(formatter.indent(this->emit_recurisve(child,
                                                          avail_width - indent,
                                                          *children_formatter),
                                     indent));
-
-        if (i != root->children().size() - 1) {
-            buf.append(EmitterSettings::get_instance().eol());
-        }
+        buf.append(EmitterSettings::get_instance().eol());
     }
 
     return buf;

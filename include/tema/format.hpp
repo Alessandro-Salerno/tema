@@ -45,6 +45,14 @@ class LeftIndenter : public Singleton<LeftIndenter>, public Indenter {
                         std::size_t        indent_width) override;
 };
 
+class RightIndenter : public Singleton<RightIndenter>, public Indenter {
+    friend class Singleton<RightIndenter>;
+
+    public:
+    std::wstring indent(const std::wstring text,
+                        std::size_t        indent_width) override;
+};
+
 class Formatter {
     private:
     Indenter &mIndenter;
@@ -69,23 +77,21 @@ class LeftFormatter : public Singleton<LeftFormatter>, public Formatter {
                         std::size_t        max_line_width) override;
 };
 
-class CenterFormatter : public Singleton<LeftFormatter>,
-                        public Formatter,
-                        public NullIndenter {
+class CenterFormatter : public Singleton<CenterFormatter>, public Formatter {
     friend class Singleton<CenterFormatter>;
 
     std::wstring format(const std::wstring text,
                         std::size_t        max_line_width) override;
 };
 
-class RightFormatter : public Singleton<LeftFormatter>, public Formatter {
+class RightFormatter : public Singleton<RightFormatter>, public Formatter {
     friend class Singleton<RightFormatter>;
 
     std::wstring format(const std::wstring text,
                         std::size_t        max_line_width) override;
 };
 
-class JustifyFormatter : public Singleton<LeftFormatter>, public Formatter {
+class JustifyFormatter : public Singleton<JustifyFormatter>, public Formatter {
     friend class Singleton<JustifyFormatter>;
 
     std::wstring format(const std::wstring text,

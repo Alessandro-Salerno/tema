@@ -30,9 +30,7 @@ std::pair<std::size_t, std::optional<std::wstring>> Splitter::next_word() {
     }
 
     // Skip leading whitespace
-    while (this->can_advance() && L' ' == this->peek()) {
-        this->consume();
-    }
+    this->skip_whitespace();
 
     // Collect word
     while (this->can_advance() && L' ' != this->peek()) {
@@ -40,9 +38,7 @@ std::pair<std::size_t, std::optional<std::wstring>> Splitter::next_word() {
     }
 
     // Skip trailing whitespace
-    while (this->can_advance() && L' ' == this->peek()) {
-        this->consume();
-    }
+    this->skip_whitespace();
 
     if (0 == buf.length()) {
         return std::make_pair(start_pos, std::nullopt);
@@ -54,6 +50,12 @@ std::pair<std::size_t, std::optional<std::wstring>> Splitter::next_word() {
 
 void Splitter::reset_line() {
     this->mLinePos = 0;
+}
+
+bool Splitter::words_left() {
+    // Skip whitespace jsut for sure (this may be called before next_word);
+    this->skip_whitespace();
+    return this->can_advance();
 }
 
 bool Splitter::can_advance() const {
@@ -76,5 +78,11 @@ wchar_t Splitter::consume() {
     wchar_t c = this->peek();
     this->advance();
     return c;
+}
+
+void Splitter::skip_whitespace() {
+    while (this->can_advance() && L' ' == this->peek()) {
+        this->consume();
+    }
 }
 } // namespace tema
