@@ -37,11 +37,6 @@ std::wstring Indenter::ignored_before_line(std::wstringstream &text_stream,
             }
 
             buf.append(line1);
-        }
-
-        if (std::getline(text_stream, line2)) {
-            buf.append(EmitterSettings::get_instance().eol());
-            buf.append(line2);
             continue;
         }
 
