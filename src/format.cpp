@@ -20,10 +20,44 @@
 #include <tema/emit.hpp>
 #include <tema/format.hpp>
 #include <tema/split.hpp>
+#include <tuple>
 
 namespace tema {
+std::wstring Indenter::ignored_before_line(std::wstringstream &text_stream,
+                                           std::size_t num_lines) const {
+    std::wstring buf;
+
+    for (std::size_t i = 0; i < num_lines; i++) {
+        std::wstring line1;
+        std::wstring line2;
+
+        if (std::getline(text_stream, line1)) {
+            if (0 != i) {
+                buf.append(EmitterSettings::get_instance().eol());
+            }
+
+            buf.append(line1);
+        }
+
+        if (std::getline(text_stream, line2)) {
+            buf.append(EmitterSettings::get_instance().eol());
+            buf.append(line2);
+            continue;
+        }
+
+        break;
+    }
+
+    return buf;
+}
+
 std::wstring LeftIndenter::indent(const std::wstring text,
-                                  std::size_t        indent_width) {
+                                  std::size_t        indent_width,
+                                  std::size_t        ignore_before_line) {
+    if (0 == indent_width) {
+        return text;
+    }
+
     std::wstring spaces(indent_width, ' ');
     std::wstring buf;
 
@@ -31,11 +65,17 @@ std::wstring LeftIndenter::indent(const std::wstring text,
     std::wstring       line;
     std::wstring       next_line;
 
+    if (0 != ignore_before_line) {
+        buf.append(this->ignored_before_line(stream, ignore_before_line));
+        next_line = EmitterSettings::get_instance().eol();
+    }
+
     while (std::getline(stream, line)) {
         if (!next_line.empty()) {
             buf.append(spaces);
             buf.append(next_line);
             buf.append(EmitterSettings::get_instance().eol());
+            next_line.clear();
         }
 
         buf.append(spaces);
@@ -57,7 +97,12 @@ std::wstring LeftIndenter::indent(const std::wstring text,
 }
 
 std::wstring RightIndenter::indent(const std::wstring text,
-                                   std::size_t        indent_width) {
+                                   std::size_t        indent_width,
+                                   std::size_t        ignore_before_line) {
+    if (0 == indent_width) {
+        return text;
+    }
+
     std::wstring spaces(indent_width, ' ');
     std::wstring buf;
 
@@ -65,11 +110,17 @@ std::wstring RightIndenter::indent(const std::wstring text,
     std::wstring       line;
     std::wstring       next_line;
 
+    if (0 != ignore_before_line) {
+        buf.append(this->ignored_before_line(stream, ignore_before_line));
+        next_line = EmitterSettings::get_instance().eol();
+    }
+
     while (std::getline(stream, line)) {
         if (!next_line.empty()) {
             buf.append(next_line);
             buf.append(spaces);
             buf.append(EmitterSettings::get_instance().eol());
+            next_line.clear();
         }
 
         if (std::getline(stream, next_line)) {

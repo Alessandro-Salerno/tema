@@ -16,6 +16,8 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdio>
+#include <sstream>
 #include <string>
 #include <tema/split.hpp>
 #include <tema/util.hpp>
@@ -24,7 +26,12 @@ namespace tema {
 class Indenter {
     public:
     virtual std::wstring indent(const std::wstring text,
-                                std::size_t        indent_width) = 0;
+                                std::size_t        indent_width,
+                                std::size_t        ignore_before_line = 0) = 0;
+
+    protected:
+    std::wstring ignored_before_line(std::wstringstream &text_stream,
+                                     std::size_t         num_lines) const;
 };
 
 class NullIndenter : public Singleton<NullIndenter>, public Indenter {
@@ -32,7 +39,8 @@ class NullIndenter : public Singleton<NullIndenter>, public Indenter {
 
     public:
     std::wstring indent(const std::wstring text,
-                        std::size_t        indent_width) override {
+                        std::size_t        indent_width,
+                        std::size_t        ignore_before_line = 0) override {
         return text;
     }
 };
@@ -42,7 +50,8 @@ class LeftIndenter : public Singleton<LeftIndenter>, public Indenter {
 
     public:
     std::wstring indent(const std::wstring text,
-                        std::size_t        indent_width) override;
+                        std::size_t        indent_width,
+                        std::size_t        ignore_before_line = -1) override;
 };
 
 class RightIndenter : public Singleton<RightIndenter>, public Indenter {
@@ -50,7 +59,8 @@ class RightIndenter : public Singleton<RightIndenter>, public Indenter {
 
     public:
     std::wstring indent(const std::wstring text,
-                        std::size_t        indent_width) override;
+                        std::size_t        indent_width,
+                        std::size_t        ignore_before_line = 0) override;
 };
 
 class Formatter {
@@ -64,13 +74,16 @@ class Formatter {
     virtual std::wstring format(const std::wstring text,
                                 std::size_t        max_line_width) = 0;
 
-    std::wstring indent(const std::wstring text, std::size_t indent_width) {
-        return this->mIndenter.indent(text, indent_width);
+    std::wstring indent(const std::wstring text,
+                        std::size_t        indent_width,
+                        std::size_t        ignore_before_line = 0) {
+        return this->mIndenter.indent(text, indent_width, ignore_before_line);
     }
 };
 
 class LeftFormatter : public Singleton<LeftFormatter>, public Formatter {
     friend class Singleton<LeftFormatter>;
+    LeftFormatter() : Formatter(LeftIndenter::get_instance()) {};
     ~LeftFormatter() = default;
 
     std::wstring format(const std::wstring text,
