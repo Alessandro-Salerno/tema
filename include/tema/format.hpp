@@ -51,7 +51,7 @@ class LeftIndenter : public Singleton<LeftIndenter>, public Indenter {
     public:
     std::wstring indent(const std::wstring text,
                         std::size_t        indent_width,
-                        std::size_t        ignore_before_line = -1) override;
+                        std::size_t        ignore_before_line = 0) override;
 };
 
 class RightIndenter : public Singleton<RightIndenter>, public Indenter {
