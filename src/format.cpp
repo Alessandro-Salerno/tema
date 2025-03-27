@@ -29,7 +29,6 @@ std::wstring Indenter::ignored_before_line(std::wstringstream &text_stream,
 
     for (std::size_t i = 0; i < num_lines; i++) {
         std::wstring line1;
-        std::wstring line2;
 
         if (std::getline(text_stream, line1)) {
             if (0 != i) {
@@ -138,7 +137,8 @@ std::wstring RightIndenter::indent(const std::wstring text,
 
 std::wstring LeftFormatter::format(const std::wstring text,
                                    std::size_t        max_line_width) {
-    auto         splitter = Splitter(text);
+    auto         splitter  = Splitter(text);
+    std::size_t  space_off = 0;
     std::wstring buf;
 
     while (true) {
@@ -149,11 +149,12 @@ std::wstring LeftFormatter::format(const std::wstring text,
         }
 
         std::wstring word = *word_opt;
-        std::size_t  rem  = max_line_width - start_pos - word.length();
+        std::size_t  rem =
+            max_line_width - start_pos - space_off - word.length();
 
         // TODO: Handle case in which word is longer than line
 
-        if (start_pos + word.length() > max_line_width) {
+        if (start_pos + space_off + word.length() > max_line_width) {
             buf.append(EmitterSettings::get_instance().eol());
             splitter.reset_line();
             rem = max_line_width - word.length();
@@ -163,6 +164,7 @@ std::wstring LeftFormatter::format(const std::wstring text,
 
         if (rem >= 1) {
             buf.push_back(' ');
+            space_off++;
         }
     }
 
