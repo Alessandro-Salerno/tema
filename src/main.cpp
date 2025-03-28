@@ -13,8 +13,11 @@
  *   limitations under the License.
  */
 
+#include <cstddef>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <louvre/api.hpp>
 #include <string>
 #include <tema/emit.hpp>
@@ -26,10 +29,16 @@ int main(int argc, const char *const argv[]) {
         return -1;
     }
 
-    std::wifstream input(argv[1]);
+    std::ifstream input(argv[1]);
 
-    std::string source((std::istreambuf_iterator<wchar_t>(input)),
-                        std::istreambuf_iterator<wchar_t>());
+    if (!input.is_open()) {
+        std::cerr << "ERROR: Could not open file" << std::endl;
+        return -1;
+    }
+
+    std::size_t file_size = std::filesystem::file_size(argv[1]);
+    std::string source(file_size, '\0');
+    input.read(source.data(), file_size);
 
     auto parser = louvre::Parser(source);
 
@@ -44,7 +53,7 @@ int main(int argc, const char *const argv[]) {
         auto root = *rootp;
         tema::EmitterSettings::get_instance().set_eol("\n");
         tema::Emitter emitter(80, 4, 4);
-        std::string  out = emitter.emit(root);
-        std::wcout << out;
+        std::string   out = emitter.emit(root);
+        std::cout << out;
     }
 }

@@ -29,12 +29,12 @@ std::string Emitter::emit(std::shared_ptr<louvre::Node> root) {
 }
 
 std::string Emitter::emit_recurisve(std::shared_ptr<louvre::Node> root,
-                                     std::size_t                   avail_width,
-                                     Formatter                    &formatter) {
-    std::size_t  indent              = 0;
-    std::size_t  indent_ignore_lines = 0;
+                                    std::size_t                   avail_width,
+                                    Formatter                    &formatter) {
+    std::size_t indent              = 0;
+    std::size_t indent_ignore_lines = 0;
     std::string prefix;
-    Formatter   *children_formatter = &formatter;
+    Formatter  *children_formatter = &formatter;
 
     switch (std::get<louvre::StandardNodeType>(root->type())) {
     case louvre::StandardNodeType::Left:

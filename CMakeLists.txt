@@ -20,7 +20,7 @@ set(LOUVRE louvre_project)
 ExternalProject_Add(
     louvre_project
     GIT_REPOSITORY https://github.com/Alessandro-Salerno/louvre
-    GIT_TAG 944eb0420015af89a61cabc46b9419c35921bbbd
+    GIT_TAG e293844c0dad3a07b070c02ba9009a345cd6ec87
     PREFIX ${PROJECT_SOURCE_DIR}/external/${LOUVRE}
     CONFIGURE_COMMAND cmake ../${LOUVRE}
     BUILD_COMMAND cmake --build .
