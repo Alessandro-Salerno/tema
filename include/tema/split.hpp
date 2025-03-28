@@ -21,14 +21,14 @@
 namespace tema {
 class Splitter {
     private:
-    const std::wstring &mText;
+    const std::string &mText;
     std::size_t         mPos;
     std::size_t         mLinePos;
 
     public:
-    Splitter(const std::wstring &text) : mText(text), mPos(0), mLinePos(0) {};
+    Splitter(const std::string &text) : mText(text), mPos(0), mLinePos(0) {};
 
-    std::pair<std::size_t, std::optional<std::wstring>> next_word();
+    std::pair<std::size_t, std::optional<std::string>> next_word();
     void                                                reset_line();
     bool                                                words_left();
 

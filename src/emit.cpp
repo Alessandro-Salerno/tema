@@ -20,7 +20,7 @@
 #include <tema/format.hpp>
 
 namespace tema {
-std::wstring Emitter::emit(std::shared_ptr<louvre::Node> root) {
+std::string Emitter::emit(std::shared_ptr<louvre::Node> root) {
     return LeftIndenter::get_instance().indent(
         this->emit_recurisve(root,
                              this->max_line_width() - this->border_width() * 2,
@@ -28,12 +28,12 @@ std::wstring Emitter::emit(std::shared_ptr<louvre::Node> root) {
         this->border_width());
 }
 
-std::wstring Emitter::emit_recurisve(std::shared_ptr<louvre::Node> root,
+std::string Emitter::emit_recurisve(std::shared_ptr<louvre::Node> root,
                                      std::size_t                   avail_width,
                                      Formatter                    &formatter) {
     std::size_t  indent              = 0;
     std::size_t  indent_ignore_lines = 0;
-    std::wstring prefix;
+    std::string prefix;
     Formatter   *children_formatter = &formatter;
 
     switch (std::get<louvre::StandardNodeType>(root->type())) {
@@ -64,7 +64,7 @@ std::wstring Emitter::emit_recurisve(std::shared_ptr<louvre::Node> root,
         break;
 
     case louvre::StandardNodeType::Item:
-        prefix              = L"-  ";
+        prefix              = "-  ";
         indent              = 3;
         indent_ignore_lines = 1;
         break;
@@ -73,7 +73,7 @@ std::wstring Emitter::emit_recurisve(std::shared_ptr<louvre::Node> root,
         break;
     }
 
-    std::wstring buf;
+    std::string buf;
     for (std::size_t i = 0; i < root->children().size(); i++) {
         auto child = root->children().at(i);
 
@@ -82,7 +82,7 @@ std::wstring Emitter::emit_recurisve(std::shared_ptr<louvre::Node> root,
             buf.append(EmitterSettings::get_instance().eol());
         }
 
-        std::wstring child_content = prefix;
+        std::string child_content = prefix;
         child_content.append(this->emit_recurisve(
             child, avail_width - indent, *children_formatter));
         buf.append(

@@ -23,12 +23,12 @@
 #include <tuple>
 
 namespace tema {
-std::wstring Indenter::ignored_before_line(std::wstringstream &text_stream,
+std::string Indenter::ignored_before_line(std::stringstream &text_stream,
                                            std::size_t num_lines) const {
-    std::wstring buf;
+    std::string buf;
 
     for (std::size_t i = 0; i < num_lines; i++) {
-        std::wstring line1;
+        std::string line1;
 
         if (std::getline(text_stream, line1)) {
             if (0 != i) {
@@ -45,19 +45,19 @@ std::wstring Indenter::ignored_before_line(std::wstringstream &text_stream,
     return buf;
 }
 
-std::wstring LeftIndenter::indent(const std::wstring text,
+std::string LeftIndenter::indent(const std::string text,
                                   std::size_t        indent_width,
                                   std::size_t        ignore_before_line) {
     if (0 == indent_width) {
         return text;
     }
 
-    std::wstring spaces(indent_width, ' ');
-    std::wstring buf;
+    std::string spaces(indent_width, ' ');
+    std::string buf;
 
-    std::wstringstream stream(text);
-    std::wstring       line;
-    std::wstring       next_line;
+    std::stringstream stream(text);
+    std::string       line;
+    std::string       next_line;
 
     if (0 != ignore_before_line) {
         buf.append(this->ignored_before_line(stream, ignore_before_line));
@@ -90,19 +90,19 @@ std::wstring LeftIndenter::indent(const std::wstring text,
     return buf;
 }
 
-std::wstring RightIndenter::indent(const std::wstring text,
+std::string RightIndenter::indent(const std::string text,
                                    std::size_t        indent_width,
                                    std::size_t        ignore_before_line) {
     if (0 == indent_width) {
         return text;
     }
 
-    std::wstring spaces(indent_width, ' ');
-    std::wstring buf;
+    std::string spaces(indent_width, ' ');
+    std::string buf;
 
-    std::wstringstream stream(text);
-    std::wstring       line;
-    std::wstring       next_line;
+    std::stringstream stream(text);
+    std::string       line;
+    std::string       next_line;
 
     if (0 != ignore_before_line) {
         buf.append(this->ignored_before_line(stream, ignore_before_line));
@@ -135,11 +135,11 @@ std::wstring RightIndenter::indent(const std::wstring text,
     return buf;
 }
 
-std::wstring LeftFormatter::format(const std::wstring text,
+std::string LeftFormatter::format(const std::string text,
                                    std::size_t        max_line_width) {
     auto         splitter  = Splitter(text);
     std::size_t  space_off = 0;
-    std::wstring buf;
+    std::string buf;
 
     while (true) {
         auto [start_pos, word_opt] = splitter.next_word();
@@ -148,7 +148,7 @@ std::wstring LeftFormatter::format(const std::wstring text,
             break;
         }
 
-        std::wstring word = *word_opt;
+        std::string word = *word_opt;
         std::size_t  rem =
             max_line_width - start_pos - space_off - word.length();
 
@@ -171,11 +171,11 @@ std::wstring LeftFormatter::format(const std::wstring text,
     return buf;
 }
 
-std::wstring CenterFormatter::format(const std::wstring text,
+std::string CenterFormatter::format(const std::string text,
                                      std::size_t        max_line_width) {
     auto         splitter = Splitter(text);
-    std::wstring buf;
-    std::wstring line;
+    std::string buf;
+    std::string line;
 
     while (true) {
         auto [start_pos, word_opt] = splitter.next_word();
@@ -184,12 +184,12 @@ std::wstring CenterFormatter::format(const std::wstring text,
             std::size_t edges = max_line_width - line.length();
             std::size_t left  = edges / 2;
 
-            buf.append(std::wstring(left, L' '));
+            buf.append(std::string(left, ' '));
             buf.append(line);
             break;
         }
 
-        std::wstring word = *word_opt;
+        std::string word = *word_opt;
         std::size_t  rem  = max_line_width - start_pos - word.length();
 
         // TODO: Handle case in which word is longer than line
@@ -198,7 +198,7 @@ std::wstring CenterFormatter::format(const std::wstring text,
             std::size_t edges = max_line_width - line.length();
             std::size_t left  = edges / 2;
 
-            buf.append(std::wstring(left, L' '));
+            buf.append(std::string(left, ' '));
             buf.append(line);
             buf.append(EmitterSettings::get_instance().eol());
             line.clear();

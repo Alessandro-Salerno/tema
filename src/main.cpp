@@ -28,7 +28,7 @@ int main(int argc, const char *const argv[]) {
 
     std::wifstream input(argv[1]);
 
-    std::wstring source((std::istreambuf_iterator<wchar_t>(input)),
+    std::string source((std::istreambuf_iterator<wchar_t>(input)),
                         std::istreambuf_iterator<wchar_t>());
 
     auto parser = louvre::Parser(source);
@@ -42,9 +42,9 @@ int main(int argc, const char *const argv[]) {
     if (auto rootp =
             std::get_if<std::shared_ptr<louvre::Node>>(&parse_result)) {
         auto root = *rootp;
-        tema::EmitterSettings::get_instance().set_eol(L"\n");
+        tema::EmitterSettings::get_instance().set_eol("\n");
         tema::Emitter emitter(80, 4, 4);
-        std::wstring  out = emitter.emit(root);
+        std::string  out = emitter.emit(root);
         std::wcout << out;
     }
 }

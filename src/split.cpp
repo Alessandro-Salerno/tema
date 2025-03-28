@@ -21,8 +21,8 @@
 #include <utility>
 
 namespace tema {
-std::pair<std::size_t, std::optional<std::wstring>> Splitter::next_word() {
-    std::wstring buf;
+std::pair<std::size_t, std::optional<std::string>> Splitter::next_word() {
+    std::string buf;
     std::size_t  start_pos = this->mLinePos;
 
     if (!this->can_advance()) {
@@ -33,7 +33,7 @@ std::pair<std::size_t, std::optional<std::wstring>> Splitter::next_word() {
     this->skip_whitespace();
 
     // Collect word
-    while (this->can_advance() && L' ' != this->peek()) {
+    while (this->can_advance() && ' ' != this->peek()) {
         buf.push_back(this->consume());
     }
 
@@ -71,7 +71,7 @@ wchar_t Splitter::peek() const {
         return this->mText.at(this->mPos);
     }
 
-    return L'\0';
+    return '\0';
 }
 
 wchar_t Splitter::consume() {
@@ -81,7 +81,7 @@ wchar_t Splitter::consume() {
 }
 
 void Splitter::skip_whitespace() {
-    while (this->can_advance() && L' ' == this->peek()) {
+    while (this->can_advance() && ' ' == this->peek()) {
         this->consume();
     }
 }
