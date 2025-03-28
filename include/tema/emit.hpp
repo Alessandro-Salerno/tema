@@ -53,8 +53,8 @@ class Emitter {
 
     std::string emit(std::shared_ptr<louvre::Node> root);
     std::string emit_recurisve(std::shared_ptr<louvre::Node> root,
-                                std::size_t                   avail_width,
-                                Formatter                    &formatter);
+                               std::size_t                   avail_width,
+                               Formatter                    &formatter);
 
     inline std::size_t max_line_width() const {
         return this->mMaxLineWidth;
@@ -67,5 +67,9 @@ class Emitter {
     inline std::size_t indent_width() const {
         return this->mIndentWidth;
     }
+
+    private:
+    inline bool
+    can_ignore_prev_line_break(std::shared_ptr<louvre::Node> prev_child) const;
 };
 } // namespace tema

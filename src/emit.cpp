@@ -14,10 +14,12 @@
  */
 
 #include <cstddef>
+#include <iostream>
 #include <louvre/api.hpp>
 #include <string>
 #include <tema/emit.hpp>
 #include <tema/format.hpp>
+#include <variant>
 
 namespace tema {
 std::string Emitter::emit(std::shared_ptr<louvre::Node> root) {
@@ -33,16 +35,15 @@ std::string Emitter::emit_recurisve(std::shared_ptr<louvre::Node> root,
                                     Formatter                    &formatter) {
     std::size_t indent              = 0;
     std::size_t indent_ignore_lines = 0;
-    std::string prefix;
+    std::string child_prefix;
+    bool        prefix_new_line    = false;
+    bool        postfix_new_line   = false;
     Formatter  *children_formatter = &formatter;
 
     switch (std::get<louvre::StandardNodeType>(root->type())) {
-    case louvre::StandardNodeType::Left:
-        children_formatter = &LeftFormatter::get_instance();
-        break;
-
     case louvre::StandardNodeType::Center:
         children_formatter = &CenterFormatter::get_instance();
+        postfix_new_line   = true;
         break;
 
     case louvre::StandardNodeType::Right:
@@ -60,13 +61,16 @@ std::string Emitter::emit_recurisve(std::shared_ptr<louvre::Node> root,
     case louvre::StandardNodeType::Paragraph:
     case louvre::StandardNodeType::Bullets:
     case louvre::StandardNodeType::Numebrs:
-        indent = this->indent_width();
+        indent           = this->indent_width();
+        prefix_new_line  = true;
+        postfix_new_line = true;
         break;
 
     case louvre::StandardNodeType::Item:
-        prefix              = "-  ";
+        child_prefix        = "-  ";
         indent              = 3;
         indent_ignore_lines = 1;
+        postfix_new_line    = true;
         break;
 
     default:
@@ -74,26 +78,34 @@ std::string Emitter::emit_recurisve(std::shared_ptr<louvre::Node> root,
     }
 
     std::string buf;
+
+    if (prefix_new_line && 0 != root->number()) {
+        buf.append(EmitterSettings::get_instance().eol());
+    }
+
     for (std::size_t i = 0; i < root->children().size(); i++) {
         auto child = root->children().at(i);
 
-        // Print leading new line when separating blocks
-        if (0 != i && !child->children().empty()) {
-            buf.append(EmitterSettings::get_instance().eol());
-        }
-
-        std::string child_content = prefix;
+        std::string child_content = child_prefix;
         child_content.append(this->emit_recurisve(
             child, avail_width - indent, *children_formatter));
         buf.append(
             formatter.indent(child_content, indent, indent_ignore_lines));
+    }
 
-        // Print trailing new line when separating blcks
-        if (i != root->children().size() - 1 && !child->children().empty()) {
-            buf.append(EmitterSettings::get_instance().eol());
-        }
+    if (postfix_new_line && *root->parent() &&
+        root->number() < (*root->parent())->children().size() - 1) {
+        buf.append(EmitterSettings::get_instance().eol());
     }
 
     return buf;
+}
+
+inline bool Emitter::can_ignore_prev_line_break(
+    std::shared_ptr<louvre::Node> prev_child) const {
+    return std::holds_alternative<louvre::StandardNodeType>(
+               prev_child->type()) &&
+           louvre::StandardNodeType::LineBreak ==
+               std::get<louvre::StandardNodeType>(prev_child->type());
 }
 } // namespace tema

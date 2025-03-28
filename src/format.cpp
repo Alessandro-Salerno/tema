@@ -21,33 +21,35 @@
 #include <tema/format.hpp>
 #include <tema/split.hpp>
 #include <tuple>
+#include <utility>
 
 namespace tema {
-std::string Indenter::ignored_before_line(std::stringstream &text_stream,
-                                           std::size_t num_lines) const {
+std::pair<std::string, std::size_t>
+Indenter::ignored_before_line(std::stringstream &text_stream,
+                              std::size_t        num_lines) const {
     std::string buf;
+    std::size_t line_count = 0;
 
-    for (std::size_t i = 0; i < num_lines; i++) {
-        std::string line1;
+    for (; line_count < num_lines; line_count++) {
+        std::string line;
 
-        if (std::getline(text_stream, line1)) {
-            if (0 != i) {
-                buf.append(EmitterSettings::get_instance().eol());
-            }
-
-            buf.append(line1);
-            continue;
+        if (!std::getline(text_stream, line)) {
+            break;
         }
 
-        break;
+        if (0 != line_count) {
+            buf.append(EmitterSettings::get_instance().eol());
+        }
+
+        buf.append(line);
     }
 
-    return buf;
+    return std::make_pair(buf, line_count);
 }
 
 std::string LeftIndenter::indent(const std::string text,
-                                  std::size_t        indent_width,
-                                  std::size_t        ignore_before_line) {
+                                 std::size_t       indent_width,
+                                 std::size_t       ignore_before_line) {
     if (0 == indent_width) {
         return text;
     }
@@ -57,42 +59,32 @@ std::string LeftIndenter::indent(const std::string text,
 
     std::stringstream stream(text);
     std::string       line;
-    std::string       next_line;
+    std::size_t       line_index = 0;
 
     if (0 != ignore_before_line) {
-        buf.append(this->ignored_before_line(stream, ignore_before_line));
-        next_line = EmitterSettings::get_instance().eol();
+        auto [first_lines, count] =
+            this->ignored_before_line(stream, ignore_before_line);
+        buf.append(first_lines);
+        line_index = count;
     }
 
-    while (std::getline(stream, line)) {
-        if (!next_line.empty()) {
+    for (; std::getline(stream, line); line_index++) {
+        if (0 != line_index || line.empty()) {
+            buf.append(EmitterSettings::get_instance().eol());
+        }
+
+        if (!line.empty()) {
             buf.append(spaces);
-            buf.append(next_line);
-            buf.append(EmitterSettings::get_instance().eol());
-            next_line.clear();
-        }
-
-        buf.append(spaces);
-
-        if (std::getline(stream, next_line)) {
-            buf.append(line);
-            buf.append(EmitterSettings::get_instance().eol());
-        } else {
             buf.append(line);
         }
-    }
-
-    if (!next_line.empty()) {
-        buf.append(spaces);
-        buf.append(next_line);
     }
 
     return buf;
 }
 
 std::string RightIndenter::indent(const std::string text,
-                                   std::size_t        indent_width,
-                                   std::size_t        ignore_before_line) {
+                                  std::size_t       indent_width,
+                                  std::size_t       ignore_before_line) {
     if (0 == indent_width) {
         return text;
     }
@@ -104,10 +96,10 @@ std::string RightIndenter::indent(const std::string text,
     std::string       line;
     std::string       next_line;
 
-    if (0 != ignore_before_line) {
+    /*if (0 != ignore_before_line) {
         buf.append(this->ignored_before_line(stream, ignore_before_line));
         next_line = EmitterSettings::get_instance().eol();
-    }
+    }*/
 
     while (std::getline(stream, line)) {
         if (!next_line.empty()) {
@@ -136,9 +128,9 @@ std::string RightIndenter::indent(const std::string text,
 }
 
 std::string LeftFormatter::format(const std::string text,
-                                   std::size_t        max_line_width) {
-    auto         splitter  = Splitter(text);
-    std::size_t  space_off = 0;
+                                  std::size_t       max_line_width) {
+    auto        splitter  = Splitter(text);
+    std::size_t space_off = 0;
     std::string buf;
 
     while (true) {
@@ -149,7 +141,7 @@ std::string LeftFormatter::format(const std::string text,
         }
 
         std::string word = *word_opt;
-        std::size_t  rem =
+        std::size_t rem =
             max_line_width - start_pos - space_off - word.length();
 
         // TODO: Handle case in which word is longer than line
@@ -157,7 +149,8 @@ std::string LeftFormatter::format(const std::string text,
         if (start_pos + space_off + word.length() > max_line_width) {
             buf.append(EmitterSettings::get_instance().eol());
             splitter.reset_line();
-            rem = max_line_width - word.length();
+            space_off = 0;
+            rem       = max_line_width - word.length();
         }
 
         buf.append(word);
@@ -172,8 +165,8 @@ std::string LeftFormatter::format(const std::string text,
 }
 
 std::string CenterFormatter::format(const std::string text,
-                                     std::size_t        max_line_width) {
-    auto         splitter = Splitter(text);
+                                    std::size_t       max_line_width) {
+    auto        splitter = Splitter(text);
     std::string buf;
     std::string line;
 
@@ -190,7 +183,7 @@ std::string CenterFormatter::format(const std::string text,
         }
 
         std::string word = *word_opt;
-        std::size_t  rem  = max_line_width - start_pos - word.length();
+        std::size_t rem  = max_line_width - start_pos - word.length();
 
         // TODO: Handle case in which word is longer than line
 

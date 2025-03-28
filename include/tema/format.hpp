@@ -21,17 +21,19 @@
 #include <string>
 #include <tema/split.hpp>
 #include <tema/util.hpp>
+#include <utility>
 
 namespace tema {
 class Indenter {
     public:
     virtual std::string indent(const std::string text,
-                                std::size_t        indent_width,
-                                std::size_t        ignore_before_line = 0) = 0;
+                               std::size_t       indent_width,
+                               std::size_t       ignore_before_line = 0) = 0;
 
     protected:
-    std::string ignored_before_line(std::stringstream &text_stream,
-                                     std::size_t         num_lines) const;
+    std::pair<std::string, std::size_t>
+    ignored_before_line(std::stringstream &text_stream,
+                        std::size_t        num_lines) const;
 };
 
 class NullIndenter : public Singleton<NullIndenter>, public Indenter {
@@ -39,8 +41,8 @@ class NullIndenter : public Singleton<NullIndenter>, public Indenter {
 
     public:
     std::string indent(const std::string text,
-                        std::size_t        indent_width,
-                        std::size_t        ignore_before_line = 0) override {
+                       std::size_t       indent_width,
+                       std::size_t       ignore_before_line = 0) override {
         return text;
     }
 };
@@ -50,8 +52,8 @@ class LeftIndenter : public Singleton<LeftIndenter>, public Indenter {
 
     public:
     std::string indent(const std::string text,
-                        std::size_t        indent_width,
-                        std::size_t        ignore_before_line = 0) override;
+                       std::size_t       indent_width,
+                       std::size_t       ignore_before_line = 0) override;
 };
 
 class RightIndenter : public Singleton<RightIndenter>, public Indenter {
@@ -59,8 +61,8 @@ class RightIndenter : public Singleton<RightIndenter>, public Indenter {
 
     public:
     std::string indent(const std::string text,
-                        std::size_t        indent_width,
-                        std::size_t        ignore_before_line = 0) override;
+                       std::size_t       indent_width,
+                       std::size_t       ignore_before_line = 0) override;
 };
 
 class Formatter {
@@ -72,11 +74,11 @@ class Formatter {
         : mIndenter(indenter) {};
 
     virtual std::string format(const std::string text,
-                                std::size_t        max_line_width) = 0;
+                               std::size_t       max_line_width) = 0;
 
     std::string indent(const std::string text,
-                        std::size_t        indent_width,
-                        std::size_t        ignore_before_line = 0) {
+                       std::size_t       indent_width,
+                       std::size_t       ignore_before_line = 0) {
         return this->mIndenter.indent(text, indent_width, ignore_before_line);
     }
 };
@@ -87,27 +89,27 @@ class LeftFormatter : public Singleton<LeftFormatter>, public Formatter {
     ~LeftFormatter() = default;
 
     std::string format(const std::string text,
-                        std::size_t        max_line_width) override;
+                       std::size_t       max_line_width) override;
 };
 
 class CenterFormatter : public Singleton<CenterFormatter>, public Formatter {
     friend class Singleton<CenterFormatter>;
 
     std::string format(const std::string text,
-                        std::size_t        max_line_width) override;
+                       std::size_t       max_line_width) override;
 };
 
 class RightFormatter : public Singleton<RightFormatter>, public Formatter {
     friend class Singleton<RightFormatter>;
 
     std::string format(const std::string text,
-                        std::size_t        max_line_width) override;
+                       std::size_t       max_line_width) override;
 };
 
 class JustifyFormatter : public Singleton<JustifyFormatter>, public Formatter {
     friend class Singleton<JustifyFormatter>;
 
     std::string format(const std::string text,
-                        std::size_t        max_line_width) override;
+                       std::size_t       max_line_width) override;
 };
 } // namespace tema
