@@ -1,4 +1,4 @@
-/* Copyright 2025 Alessandro Salerno
+/* Copyright 2025 Alessandro Salernoform
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -129,8 +129,8 @@ std::string RightIndenter::indent(const std::string text,
 
 std::string LeftFormatter::format(const std::string text,
                                   std::size_t       max_line_width) {
-    auto        splitter  = Splitter(text);
-    std::size_t space_off = 0;
+    auto        splitter = Splitter(text);
+    std::size_t carry    = 0;
     std::string buf;
 
     while (true) {
@@ -141,23 +141,21 @@ std::string LeftFormatter::format(const std::string text,
         }
 
         std::string word = *word_opt;
-        std::size_t rem =
-            max_line_width - start_pos - space_off - word.length();
+        long        rem  = max_line_width - start_pos - word.length();
 
         // TODO: Handle case in which word is longer than line
 
-        if (start_pos + space_off + word.length() > max_line_width) {
+        if (start_pos + carry + word.length() > max_line_width) {
             buf.append(EmitterSettings::get_instance().eol());
             splitter.reset_line();
-            space_off = 0;
-            rem       = max_line_width - word.length();
+            carry = word.length() + 1;
+            rem   = max_line_width - word.length();
         }
 
         buf.append(word);
 
         if (rem >= 1) {
             buf.push_back(' ');
-            space_off++;
         }
     }
 
@@ -168,6 +166,7 @@ std::string CenterFormatter::format(const std::string text,
                                     std::size_t       max_line_width) {
     auto        splitter = Splitter(text);
     std::string buf;
+    std::size_t carry = 0;
     std::string line;
 
     while (true) {
@@ -187,7 +186,7 @@ std::string CenterFormatter::format(const std::string text,
 
         // TODO: Handle case in which word is longer than line
 
-        if (start_pos + word.length() > max_line_width) {
+        if (start_pos + carry + word.length() > max_line_width) {
             std::size_t edges = max_line_width - line.length();
             std::size_t left  = edges / 2;
 
@@ -197,7 +196,8 @@ std::string CenterFormatter::format(const std::string text,
             line.clear();
 
             splitter.reset_line();
-            rem = max_line_width - word.length();
+            carry = word.length() + 1;
+            rem   = max_line_width - word.length();
         }
 
         line.append(word);

@@ -35,15 +35,16 @@ std::string Emitter::emit_recurisve(std::shared_ptr<louvre::Node> root,
                                     Formatter                    &formatter) {
     std::size_t indent              = 0;
     std::size_t indent_ignore_lines = 0;
-    std::string child_prefix;
-    bool        prefix_new_line    = false;
-    bool        postfix_new_line   = false;
+    std::string prefix;
     Formatter  *children_formatter = &formatter;
 
     switch (std::get<louvre::StandardNodeType>(root->type())) {
+    case louvre::StandardNodeType::Left:
+        children_formatter = &LeftFormatter::get_instance();
+        break;
+
     case louvre::StandardNodeType::Center:
         children_formatter = &CenterFormatter::get_instance();
-        postfix_new_line   = true;
         break;
 
     case louvre::StandardNodeType::Right:
@@ -61,16 +62,13 @@ std::string Emitter::emit_recurisve(std::shared_ptr<louvre::Node> root,
     case louvre::StandardNodeType::Paragraph:
     case louvre::StandardNodeType::Bullets:
     case louvre::StandardNodeType::Numebrs:
-        indent           = this->indent_width();
-        prefix_new_line  = true;
-        postfix_new_line = true;
+        indent = this->indent_width();
         break;
 
     case louvre::StandardNodeType::Item:
-        child_prefix        = "-  ";
+        prefix              = "-  ";
         indent              = 3;
         indent_ignore_lines = 1;
-        postfix_new_line    = true;
         break;
 
     default:
@@ -78,24 +76,24 @@ std::string Emitter::emit_recurisve(std::shared_ptr<louvre::Node> root,
     }
 
     std::string buf;
-
-    if (prefix_new_line && 0 != root->number()) {
-        buf.append(EmitterSettings::get_instance().eol());
-    }
-
     for (std::size_t i = 0; i < root->children().size(); i++) {
         auto child = root->children().at(i);
 
-        std::string child_content = child_prefix;
+        // Print leading new line when separating blocks
+        if (0 != i && !child->children().empty()) {
+            buf.append(EmitterSettings::get_instance().eol());
+        }
+
+        std::string child_content = prefix;
         child_content.append(this->emit_recurisve(
             child, avail_width - indent, *children_formatter));
         buf.append(
             formatter.indent(child_content, indent, indent_ignore_lines));
-    }
 
-    if (postfix_new_line && *root->parent() &&
-        root->number() < (*root->parent())->children().size() - 1) {
-        buf.append(EmitterSettings::get_instance().eol());
+        // Print trailing new line when separating blcks
+        if (i != root->children().size() - 1 && !child->children().empty()) {
+            buf.append(EmitterSettings::get_instance().eol());
+        }
     }
 
     return buf;
