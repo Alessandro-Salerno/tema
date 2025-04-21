@@ -1,0 +1,26 @@
+                                     TEMA 
+                          TXT GENERATOR AND FORMATTER 
+
+    What is tema? 
+
+        tema is a txt generator and formatter build upon the louvre markup 
+        language <https://github.com/Alessandro-Salerno/louvre>. This 
+        software can convert any louvre source file into a pretty plain text 
+        file for the reader's enjoyment. In fact, this README is generated 
+        with tema! 
+
+    How to use it 
+
+        tema can be used as a CLI utility with the following command: 
+
+            tema <input file> 
+
+        The output will appear in the console. You can use your shell's 
+        redirection syntax to output the formatted document to a file: 
+
+            tema <input file> > out.txt 
+
+    License 
+
+        This software is distributed under the Apache License 2.0. See 
+        LICENSE for details. 
